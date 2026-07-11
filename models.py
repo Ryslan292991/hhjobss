@@ -29,4 +29,4 @@ class Vacancy:
 
     @property
     def source_label(self) -> str:
-        return {"hh": "hh.ru", "trudvsem": "Работа России"}.get(self.source, self.source)
+        return {"hh": "hh.ru", "trudvsem": "Работа России", "tg": "Telegram"}.get(self.source, self.source)
