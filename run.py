@@ -14,6 +14,7 @@ import config
 import filters
 from models import Vacancy
 from sources.hh import HHSource, SourceUnavailable
+from sources.telegram_channels import TelegramChannelsSource
 from sources.trudvsem import TrudvsemSource
 
 logging.basicConfig(format="%(levelname)s | %(message)s", level=logging.INFO)
@@ -24,6 +25,7 @@ SEEN_PATH = Path(__file__).parent / "seen.json"
 
 # Реестр источников: имя -> класс.
 REGISTRY = {
+    "telegram": TelegramChannelsSource,
     "trudvsem": TrudvsemSource,
     "hh": HHSource,
 }
@@ -93,9 +95,10 @@ def format_salary(v: Vacancy) -> str:
 
 def render(v: Vacancy, verdict: str, reasons: list[str]) -> str:
     e = html.escape
+    employer_line = e(v.employer) if v.employer else ("из канала" if v.source == "tg" else "работодатель не указан")
     lines = [
         f"<b>{e(v.title)}</b>",
-        f"{e(v.employer or 'работодатель не указан')} · <i>{e(v.source_label)}</i>",
+        f"{employer_line} · <i>{e(v.source_label)}</i>",
         f"💰 {e(format_salary(v))}",
         f"🔗 {v.url}",
     ]
