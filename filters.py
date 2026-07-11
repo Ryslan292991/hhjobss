@@ -86,15 +86,19 @@ def scam_score(v: Vacancy) -> tuple[int, list[str]]:
             score += weight
             reasons.append(label)
 
-    if not v.employer:
-        score += 3
-        reasons.append("не указан работодатель")
+    # Сигналы «нет работодателя» осмысленны только для структурированных
+    # источников (hh, trudvsem). В Telegram-постах поля работодателя нет
+    # в принципе — штрафовать за это нельзя, иначе отсеются все вакансии.
+    if v.source != "tg":
+        if not v.employer:
+            score += 3
+            reasons.append("не указан работодатель")
+        if v.is_anonymous:
+            score += 2
+            reasons.append("анонимная вакансия")
     if v.employer_verified is False:
         score += 3
         reasons.append("работодатель не верифицирован площадкой")
-    if v.is_anonymous:
-        score += 2
-        reasons.append("анонимная вакансия")
 
     if v.currency == "RUR" and (v.salary_from or 0) >= 150_000:
         score += 3
